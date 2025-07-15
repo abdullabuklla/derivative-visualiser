@@ -71,6 +71,35 @@
             border-radius:10px;
         }
 
+        /* ==========================================================
+   Responsive layout for small screens
+   ========================================================== */
+        @media (max-width: 700px){
+
+            /* 1 · big square plot: fill the screen width, stay square   */
+            #main-holder canvas{
+                width: 100%;          /* stretch to full wrapper width      */
+                max-width: 830px;     /* but never exceed desktop size       */
+                aspect-ratio: 1 / 1;  /* keep it perfectly square            */
+                height: auto;         /* let the browser compute the height  */
+            }
+
+            /* 2 · two 400×400 side panels: each ≈48 % of full width      */
+            #trace-holder canvas{
+                width: 48%;           /* sit side-by-side under 700 px       */
+                height: auto;
+                flex: 0 0 auto;       /* don’t stretch vertically            */
+                aspect-ratio: 1 / 1;  /* remain square                       */
+            }
+
+            /* 3 · histogram: thin strip, 3 : 1 aspect ratio              */
+            #hist-holder canvas{
+                width: 100%;
+                aspect-ratio: 3 / 1;  /* e.g. 300 px wide → 100 px tall      */
+                height: auto;
+            }
+        }
+
 
 
     </style>
