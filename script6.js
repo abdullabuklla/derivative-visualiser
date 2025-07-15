@@ -987,7 +987,14 @@ function drawHist () {
 /* ------- buttons & controls --------------------------------------- */
 function start(){
     loop();
-    f=parse(fnIn.value); x0=+x0In.value; xmin=+xminIn.value; xmax=+xmaxIn.value;
+    f=parse(fnIn.value); x0=+x0In.value;
+    /* NEW guard: stop if the function isn’t finite at x₀ */
+    if (!Number.isFinite(f(x0))) {
+        alert('f(x₀) is undefined or infinite at the chosen x₀. Pick another point.');
+        anim = false;          // keep everything idle
+        return;                // exit start()
+    }
+    xmin=+xminIn.value; xmax=+xmaxIn.value;
     speed=+spdIn.value; maxSteps=Math.max(1,+maxIn.value||300);
     // delta=Math.max((xmax-xmin)/4,0.001);
 
@@ -1026,13 +1033,6 @@ resetBtn.onclick = () => {
     f    = parse(fnIn.value);
     x0   = +x0In.value;
 
-    /* NEW guard: stop if the function isn’t finite at x₀ */
-    if (!Number.isFinite(f(x0))) {
-        alert('f(x₀) is undefined or infinite at the chosen x₀. Pick another point.');
-        anim = false;          // keep everything idle
-        return;                // exit start()
-    }
-    
     xmin = +xminIn.value;
     xmax = +xmaxIn.value;
 
