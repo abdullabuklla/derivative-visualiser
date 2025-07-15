@@ -63,40 +63,45 @@
                 overflow-x:auto;         /* scroll if the pair is wider */
             }
         }
+
         #main-holder canvas{
-            width :830px;   /* EXACTLY the createCanvas() width  */
-            height:830px;
             overflow:visible;   /* make sure nothing is clipped  */
             /*border:2px solid #9a3838;*/
             border-radius:10px;
         }
 
         /* ==========================================================
-   Responsive layout for small screens
-   ========================================================== */
-        @media (max-width: 700px){
+        Responsive sizes below 680 px
+        ========================================================== */
+        @media (max-width: 680px){
 
-            /* 1 · big square plot: fill the screen width, stay square   */
+            /* main square fills the line, stays square */
             #main-holder canvas{
-                width: 100%;          /* stretch to full wrapper width      */
-                max-width: 830px;     /* but never exceed desktop size       */
-                aspect-ratio: 1 / 1;  /* keep it perfectly square            */
-                height: auto;         /* let the browser compute the height  */
-            }
-
-            /* 2 · two 400×400 side panels: each ≈48 % of full width      */
-            #trace-holder canvas{
-                width: 48%;           /* sit side-by-side under 700 px       */
+                width: 100%;          /* take full column width      */
+                max-width: 680px;     /* never larger than viewport  */
                 height: auto;
-                flex: 0 0 auto;       /* don’t stretch vertically            */
-                aspect-ratio: 1 / 1;  /* remain square                       */
+                aspect-ratio: 1 / 1;  /* keep it perfectly square    */
             }
 
-            /* 3 · histogram: thin strip, 3 : 1 aspect ratio              */
+            /* slope-trace & compass: half-width squares, side-by-side */
+            #trace-holder{
+                flex-direction: row;      /* row on small screens          */
+                flex-wrap: nowrap;
+                overflow-x: auto;         /* scroll if still too wide      */
+            }
+            #trace-holder canvas{
+                width: 48vw;              /* ~half the viewport            */
+                max-width: 340px;         /* but never exceed desktop size */
+                height: auto;
+                aspect-ratio: 1 / 1;
+                flex: 0 0 auto;           /* prevent stretching            */
+            }
+
+            /* histogram: thin bar, 3-to-1 ratio */
             #hist-holder canvas{
                 width: 100%;
-                aspect-ratio: 3 / 1;  /* e.g. 300 px wide → 100 px tall      */
                 height: auto;
+                aspect-ratio: 3 / 1;      /* e.g. 330 px wide → 110 px tall */
             }
         }
 
