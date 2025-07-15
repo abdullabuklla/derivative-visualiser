@@ -65,7 +65,17 @@ const fnIn=$('fnInput'), x0In=$('x0Input'),
     el.addEventListener('change',  refresh);  // keep this too
     el.addEventListener('keyup', e=>{ if (e.key==='Enter') refresh(); });
 });
-list.onchange = () => { if (list.value){ fnIn.value = list.value; refresh(); } };
+list.onchange = () => {
+    if (!list.value) return;
+    fnIn.value = list.value;
+
+    /* programmatically click the Reset button */
+    resetBtn.click();      // clears slopes, fireworks, etc.
+
+    /* then refresh inputs so xmin/xmax/x₀ updates take effect */
+    refresh();
+};
+
 
 /* ------- canvases ------------------------------------------------- */
 let traceC, compassC, histC;
@@ -1015,6 +1025,14 @@ resetBtn.onclick = () => {
     /* 1 · read current inputs ---------------------------------- */
     f    = parse(fnIn.value);
     x0   = +x0In.value;
+
+    /* NEW guard: stop if the function isn’t finite at x₀ */
+    if (!Number.isFinite(f(x0))) {
+        alert('f(x₀) is undefined or infinite at the chosen x₀. Pick another point.');
+        anim = false;          // keep everything idle
+        return;                // exit start()
+    }
+    
     xmin = +xminIn.value;
     xmax = +xmaxIn.value;
 
