@@ -62,7 +62,7 @@
        • histogram is a thin strip, centred
        • equal side-margins for the whole page
        ────────────────────────────────────────────────────────────*/
-        @media (max-width:670px){
+        @media (max-width:700px){
 
             body{padding-inline:0.8rem;}              /* global L‒R margin */
 
@@ -74,34 +74,34 @@
                 margin:0 auto;
             }
 
-            /* right-hand charts: row layout with a small gap */
+            /* 2 · right-hand charts → stacked, full width */
             #trace-holder{
                 display:flex;
-                flex-direction:row;
-                flex-wrap:nowrap;
-                overflow-x:auto;
-                align-items:flex-start;
-                gap:0.8rem;
-            }
-            #trace-holder canvas{
-                flex:0 0 auto;
-                width:calc((100% - 0.6rem)/2);        /* half of line minus the gap */
-                max-width:275px;                      /* cap so they never balloon  */
-                aspect-ratio:1/1;
-                height:auto;
-                margin-top:0 !important;
+                flex-direction:column;      /* stack one above the other */
+                gap:.6rem;                  /* space between squares     */
+                align-items:center;         /* keep them centred         */
+                overflow-x:hidden;          /* no sideways scroll        */
+                padding-inline:0.8rem;      /* same side-margins as body */
             }
 
-            /* histogram: centred thin bar */
-            #hist-holder{
-                max-width:100%;
-                margin:-1.0rem auto 0;
-            }
-            #hist-holder canvas{
-                width:100%;
-                aspect-ratio:4/1;                     /* thin strip */
+            #trace-holder canvas{
+                width:93vw;                 /* same width as main plot   */
+                max-width:560px;            /* safety cap                */
                 height:auto;
+                aspect-ratio:1/1;           /* stay square               */
+                margin:0 auto;
             }
+
+            /* 3 · histogram strip (unchanged, but now width matches) */
+            #hist-holder canvas{
+                width:93vw;
+                max-width:560px;
+                height:auto;
+                aspect-ratio:4/1;
+                margin:0.8rem auto 0;
+            }
+
+
         }
 
         /* ──────────────────────────────────────────────────────────────
