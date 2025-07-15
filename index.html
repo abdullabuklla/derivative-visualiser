@@ -74,33 +74,34 @@
                 margin:0 auto;
             }
 
-            /* 2 · right-hand charts → stacked, full width */
+            /* row holder */
             #trace-holder{
                 display:flex;
-                flex-direction:column;      /* stack one above the other */
-                gap:.6rem;                  /* space between squares     */
-                align-items:center;         /* keep them centred         */
-                overflow-x:hidden;          /* no sideways scroll        */
-                padding-inline:0.8rem;      /* same side-margins as body */
+                flex-direction:row;      /* side-by-side              */
+                flex-wrap:nowrap;        /* never wrap                */
+                gap:.6rem;               /* space between the squares */
+                overflow-x:auto;         /* scroll if still too wide  */
+                align-items:flex-start;
+                padding-inline:.8rem;    /* same side-margins as body */
             }
 
+            /* each square = half of row minus the gap */
             #trace-holder canvas{
-                width:93vw;                 /* same width as main plot   */
-                max-width:560px;            /* safety cap                */
+                flex:0 0 auto;
+                width:calc((100% - .6rem)/2);   /* two equal halves      */
+                max-width:340px;                /* safety cap            */
                 height:auto;
-                aspect-ratio:1/1;           /* stay square               */
-                margin:0 auto;
+                aspect-ratio:1/1;               /* stay square           */
+                margin-top:0 !important;        /* remove old offset     */
             }
 
-            /* 3 · histogram strip (unchanged, but now width matches) */
+            /* histogram stays full width under the row (optional) */
             #hist-holder canvas{
-                width:93vw;
-                max-width:560px;
+                width:100%;
+                aspect-ratio:4/1;               /* thin bar              */
                 height:auto;
-                aspect-ratio:4/1;
                 margin:0.8rem auto 0;
             }
-
 
         }
 
