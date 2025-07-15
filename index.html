@@ -57,6 +57,13 @@
         /* NEW  ─ from 0 px up to 700 px screen width,
            put the two 400 × 400 canvases side-by-side */
         @media (max-width:700px){
+            #main-holder canvas{
+                width: 100% !important;   /* override the inline 830 px */
+                height: auto !important;
+                aspect-ratio: 1 / 1;      /* stay perfectly square      */
+                max-width: 700px;         /* never grow beyond viewport */
+                flex: 0 0 auto;           /* don’t let flexbox stretch  */
+            }
             #trace-holder{
                 flex-direction:row;      /* side-by-side                */
                 flex-wrap:nowrap;        /* stay on one line            */
