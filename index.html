@@ -50,9 +50,41 @@
         #trace-holder{
             display:flex;          /* turn it into a flex box       */
             flex-direction:column; /*  ←  stack top-to-bottom       */
-            gap:.0rem;             /* space between the two panels  */
+            gap:1.0rem;             /* space between the two panels  */
             flex-shrink:0;         /* don’t let it collapse         */
+
         }
+
+        /* ==========================================================
+       Desktops & large tablets  ─ keep classic 830 + 400 + 400
+       (and add a 1 rem gap between the two right-hand squares)
+       ========================================================== */
+        @media (min-width:701px){
+
+            /* main plot */
+            #main-holder canvas{
+                width: 830px !important;   /* never larger */
+                height:auto !important;
+            }
+
+            /* slope trace + compass  (fixed 400 px each) */
+            #trace-holder{
+                display:flex;
+                flex-direction:column;     /* stacked */
+                gap:1rem;                  /* ← space between them */
+            }
+            #trace-holder canvas{
+                width:400px !important;    /* never stretch on 4 K screens  */
+                height:auto !important;
+            }
+
+            /* optional: centre whole block on ultra-wide monitors */
+            #row{
+                max-width: 1400px;         /* 830 + 1 rem gap + 400 + margins */
+                margin-inline:auto;
+            }
+        }
+
 
         /* NEW  ─ from 0 px up to 700 px screen width,
            put the two 400 × 400 canvases side-by-side */
@@ -71,6 +103,7 @@
                 flex-wrap:nowrap;       /* stay on one line          */
                 overflow-x:auto;        /* scroll if wider           */
                 align-items:flex-start; /* top-align the canvases    */
+                gap:.6rem;           /* keep smaller phone gap */
             }
 
             /* canvas override */
