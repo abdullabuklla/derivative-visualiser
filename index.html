@@ -50,7 +50,7 @@
         #trace-holder{
             display:flex;          /* turn it into a flex box       */
             flex-direction:column; /*  ←  stack top-to-bottom       */
-            gap:.6rem;             /* space between the two panels  */
+            gap:.0rem;             /* space between the two panels  */
             flex-shrink:0;         /* don’t let it collapse         */
         }
 
@@ -58,7 +58,7 @@
            put the two 400 × 400 canvases side-by-side */
         @media (max-width:700px){
             #main-holder canvas{
-                width: 80vw !important;   /* ← make it 80 % of the screen          */
+                width: 95vw !important;   /* ← make it 80 % of the screen          */
                 max-width: 560px;         /* optional safety cap (0.8 × 700)       */
                 height: auto !important;
                 aspect-ratio: 1 / 1;      /* stay square                           */
