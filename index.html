@@ -54,10 +54,6 @@
             flex-shrink:0;         /* don’t let it collapse         */
         }
 
-        @media (min-width:1700px){             /* adjust 2000 px if you prefer   */
-            #app{max-width:1400px;margin-inline:auto;} /* whole UI centred & capped */
-        }
-
         /* NEW  ─ from 0 px up to 700 px screen width,
            put the two 400 × 400 canvases side-by-side */
         @media (max-width:700px){
@@ -81,9 +77,6 @@
             #trace-holder canvas{
                 margin-top:0 !important;   /* remove the 0.6 rem offset */
             }
-
-            body{padding-inline:1rem;}         /* equal 1 rem left / right margin */
-            #row{margin-inline:auto;}          /* centre the two-column block     */
         }
 
         #main-holder canvas{
