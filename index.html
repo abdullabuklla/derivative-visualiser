@@ -64,11 +64,17 @@
                 max-width: 700px;         /* never grow beyond viewport */
                 flex: 0 0 auto;           /* don’t let flexbox stretch  */
             }
+            /* holder settings */
             #trace-holder{
-                flex-direction:row;      /* side-by-side                */
-                flex-wrap:nowrap;        /* stay on one line            */
-                overflow-x:auto;         /* scroll if the pair is wider */
-                align-items:flex-start;   /* ← keep canvases flush at the top */
+                flex-direction:row;     /* side-by-side              */
+                flex-wrap:nowrap;       /* stay on one line          */
+                overflow-x:auto;        /* scroll if wider           */
+                align-items:flex-start; /* top-align the canvases    */
+            }
+
+            /* canvas override */
+            #trace-holder canvas{
+                margin-top:0 !important;   /* remove the 0.6 rem offset */
             }
         }
 

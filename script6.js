@@ -261,7 +261,8 @@ function setup () {
     traceHold.appendChild(traceC.canvas);
 
     compassC = createGraphics(400,400);
-    compassC.canvas.style.cssText='border:2px solid #30363d;margin:0.6rem 0 0 1rem';
+    compassC.canvas.style.cssText =
+        'border:2px solid #30363d;margin-left:1rem';   // ← no top margin
     traceHold.appendChild(compassC.canvas);
 
     /* compass drawing handlers */
