@@ -56,28 +56,33 @@
 
         /* NEW  ─ from 0 px up to 700 px screen width,
            put the two 400 × 400 canvases side-by-side */
-        /* ── small-screen layout for the two 400 × 400 canvases ───────── */
         @media (max-width:700px){
-
-            /* leave the flex settings exactly as they are … */
+            #main-holder canvas{
+                width: 93vw !important;   /* ← make it 80 % of the screen          */
+                max-width: 560px;         /* optional safety cap (0.8 × 700)       */
+                height: auto !important;
+                aspect-ratio: 1 / 1;      /* stay square                           */
+                flex: 0 0 auto;
+                margin: 0 auto;           /* centre it horizontally (optional)     */
+            }
+            /* holder settings */
             #trace-holder{
-                flex-direction: row;
-                flex-wrap:      nowrap;
-                overflow-x:     auto;
-                align-items:    flex-start;
-
-                /* … then add only these two lines 👇 */
-                padding-left:  0.5rem;   /* room on the left  */
-                padding-right: 0.5rem;   /* room on the right */
+                flex-direction:row;     /* side-by-side              */
+                flex-wrap:nowrap;       /* stay on one line          */
+                overflow-x:auto;        /* scroll if wider           */
+                align-items:flex-start; /* top-align the canvases    */
             }
 
-            /* give each canvas a sliver of space from its neighbour / edges */
+            /* canvas override */
             #trace-holder canvas{
-                margin-inline: 0.25rem;  /* 0.25 rem on both L & R */
+                margin-top:0 !important;   /* remove the 0.6 rem offset */
+            }
+
+            body{
+                padding-left:  0.8rem;   /* adjust value to taste */
+                padding-right: 0.8rem;
             }
         }
-
-
 
         #main-holder canvas{
             overflow:visible;   /* make sure nothing is clipped  */
@@ -117,6 +122,14 @@
                 width: 109%;
                 height: auto;
                 aspect-ratio: 3 / 1;      /* e.g. 330 px wide → 110 px tall */
+            }
+        }
+
+        /* centre the whole two-column row and cap its spread */
+        @media (min-width:1600px){
+            #row{
+                max-width: 1400px;      /* 830 + 1rem gap + 400 + margins */
+                margin-inline:auto;     /* centre in the viewport          */
             }
         }
 
