@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Derivative Visualiser</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet"/>
+
+    <style>
+        html,body{margin:0;background:#0d1117;color:#e6edf3;font-family:Inter,sans-serif}
+        #app{display:flex;flex-direction:column;align-items:center;gap:1.2rem;padding:1.3rem}
+        #controls{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center}
+        /* make the small numeric / text boxes slimmer */
+        #controls input[type="number"],
+        #controls input[type="text"],
+        #controls input:not([type]) {   /* catches fnInput */
+            width: 3rem;      /* ←  adjust to taste (default ≈75 px) */
+            padding: .25rem .4rem;
+            font-size: .82rem;
+        }
+
+        /* sliders stay full width, buttons & selects unchanged */
+        #controls input[type="range"]{ width:7rem }
+
+        label{display:flex;align-items:center;gap:.35rem;font-size:.95rem}
+        input,button,select{background:#161b22;border:1px solid #30363d;border-radius:8px;
+            color:inherit;padding:.35rem .6rem;font-size:.95rem}
+        input[type=range]{width:7rem}
+        button{cursor:pointer;font-weight:700} button:hover{background:#238636}
+        canvas{border:1px solid #30363d;border-radius:10px;
+            box-shadow:0 0 6px rgba(0,0,0,.6);width:auto; height:auto }
+
+        small{opacity:.8;font-size:.85rem}
+        /* ===== layout for the two columns ===== */
+        #row{
+            display:flex;
+            gap:1rem;
+            flex-wrap: wrap;          /* allow wrap when space is tight   */
+            justify-content:center;  /* centre the columns               */
+            align-items:flex-start;
+        }
+        /* on large screens keep them side-by-side */
+        @media (min-width:1160px){
+            #row{flex-wrap:nowrap;}
+        }
+
+        /* put this anywhere in your <style> block  ────────────── */
+        #trace-holder{
+            display:flex;          /* turn it into a flex box       */
+            flex-direction:column; /*  ←  stack top-to-bottom       */
+            gap:.6rem;             /* space between the two panels  */
+            flex-shrink:0;         /* don’t let it collapse         */
+        }
+
+        /* NEW  ─ from 0 px up to 700 px screen width,
+           put the two 400 × 400 canvases side-by-side */
+        @media (max-width:700px){
+            #trace-holder{
+                flex-direction:row;      /* side-by-side                */
+                flex-wrap:nowrap;        /* stay on one line            */
+                overflow-x:auto;         /* scroll if the pair is wider */
+            }
+        }
+        #main-holder canvas{
+            width :830px;   /* EXACTLY the createCanvas() width  */
+            height:830px;
+            overflow:visible;   /* make sure nothing is clipped  */
+            /*border:2px solid #9a3838;*/
+            border-radius:10px;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<div id="app">
+
+    <h2 style="margin:0;font-weight:700">Interactive Derivative Visualiser</h2>
+
+    <label>f(x)
+        <input id="fnInput" value="abs(x)" style="width:20rem; min-width:6rem"/>
+    </label>
+    <div id="controls">
+
+        <label>x₀ <input id="x0Input" type="number" step="0.1" value="1"/></label>
+        <label>xmin<input id="xmin" type="number" step="0.5" value="-3"/></label>
+        <label>xmax<input id="xmax" type="number" step="0.5" value="3"/></label>
+        <label>speed<input id="speedInput" type="range" min="0.00001" max="0.25" step="0.002" value="0.04"/></label>
+        <label>max steps<input id="maxIt" type="number" min="10" step="10" value="300"/></label>
+        <label>hist M <input id="histMax" type="number" min="1" step="1" value="10"/></label>
+
+        <label>
+            initial gap
+            <input id="gapInput" type="number"
+                   min="0.05" max="0.95" step="0.05" value="0.80">
+        </label>
+<!--        <select id="exampleList">-->
+<!--            <option value="">— examples —</option>-->
+<!--            <option value="abs(x)">|x| (cusp)</option>-->
+<!--            <option value="sign(x)*pow(abs(x),2/3)">sgn(x)|x|^{2/3}</option>-->
+<!--            <option value="sqrt(abs(x))">√|x|</option>-->
+<!--            <option value="abs(sin(x))">|sin x| (kπ cusps)</option>-->
+<!--            <option value="(x!=0)?abs(x)*sin(1/x):0">|x|·sin(1/x)</option>-->
+<!--            <option value="(x!=0)?pow(abs(x),2/3)*sin(1/x):0">|x|^{2/3}·sin(1/x)</option>-->
+<!--        </select>-->
+
+        <select id="exampleList">
+            <option value="">— examples —</option>
+            <option value="abs(x)">|x| (cusp)</option>
+            <option value="sign(x)*pow(abs(x),2/3)">sgn(x)|x|^{2/3}</option>
+            <option value="sqrt(abs(x))">√|x|</option>
+            <option value="abs(sin(x))">|sin x| (kπ cusps)</option>
+            <option value="(x!=0)?abs(x)*sin(1/x):0">|x|·sin(1/x)</option>
+            <option value="(x!=0)?pow(abs(x),2/3)*sin(1/x):0">|x|^{2/3}·sin(1/x)</option>
+
+            <!-- smooth functions -->
+            <option value="sin(x)">sin(x)</option>
+            <option value="cos(x)">cos(x)</option>
+            <option value="tan(x)">tan(x)</option>
+            <option value="exp(x)">e^x</option>
+            <option value="log(x)">ln(x)</option>
+            <option value="1/(1+exp(-x))">logistic(x)</option>
+            <option value="sqrt(1-x^2)">upper semicircle</option>
+            <option value="sin(x)/x">sinc(x)</option>
+
+            <!-- two-piece step/triangle -->
+            <option value="piece{ x<=0:x^2; x>0:x }">2-piece cont, not diff</option>
+            <option value="piece{ x<=0:-(x^2); x>0:x^2 }">2-piece cont & diff</option>
+            <option value="piece{ x<=0:x; x>0:2*x }">2-piece cont with slope jump</option>
+            <!-- three-piece examples -->
+            <option value="piece{ x<-1:-1; x<1:x; x>=1:1 }">3-piece ramp/step</option>
+
+        </select>
+
+
+        <button id="startBtn">Animate</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+
+    <div id="row">
+        <div id="main-holder"></div>
+        <div id="trace-holder"></div>
+    </div>
+
+    <div id="hist-holder" style="width:100%;display:flex;justify-content:center"></div>
+
+    <small>wheel = zoom · drag = pan · purple line = your guess</small>
+</div>
+
+<script src="script6.js"></script>
+</body>
+</html>
