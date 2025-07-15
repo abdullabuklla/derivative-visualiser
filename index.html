@@ -55,82 +55,99 @@
 
         }
 
-        /* ==========================================================
-       Desktops & large tablets  ─ keep classic 830 + 400 + 400
-       (and add a 1 rem gap between the two right-hand squares)
-       ========================================================== */
-        @media (min-width:701px){
+        /* ──────────────────────────────────────────────────────────────
+       1 ▸ Phones & small tablets  (viewport ≤ 700 px)
+       • main plot fills the line
+       • two square charts sit side-by-side, each half-width
+       • histogram is a thin strip, centred
+       • equal side-margins for the whole page
+       ────────────────────────────────────────────────────────────*/
+        @media (max-width:700px){
+
+            body{padding-inline:0.8rem;}              /* global L‒R margin */
 
             /* main plot */
             #main-holder canvas{
-                width: 830px !important;   /* never larger */
+                width:100% !important;                /* fill available line */
                 height:auto !important;
+                aspect-ratio:1/1;
+                margin:0 auto;
             }
 
-            /* slope trace + compass  (fixed 400 px each) */
+            /* right-hand charts: row layout with a small gap */
             #trace-holder{
                 display:flex;
-                flex-direction:column;     /* stacked */
-                gap:1rem;                  /* ← space between them */
+                flex-direction:row;
+                flex-wrap:nowrap;
+                overflow-x:auto;
+                align-items:flex-start;
+                gap:0.6rem;
             }
             #trace-holder canvas{
-                width:400px !important;    /* never stretch on 4 K screens  */
-                height:auto !important;
+                flex:0 0 auto;
+                width:calc((100% - 0.6rem)/2);        /* half of line minus the gap */
+                max-width:340px;                      /* cap so they never balloon  */
+                aspect-ratio:1/1;
+                height:auto;
+                margin-top:0 !important;
             }
 
-            /* optional: centre whole block on ultra-wide monitors */
-            #row{
-                max-width: 1400px;         /* 830 + 1 rem gap + 400 + margins */
+            /* histogram: centred thin bar */
+            #hist-holder{
+                max-width:100%;
+                margin:0.8rem auto 0;
+            }
+            #hist-holder canvas{
+                width:100%;
+                aspect-ratio:4/1;                     /* thin strip */
+                height:auto;
+            }
+        }
+
+        /* ──────────────────────────────────────────────────────────────
+           2 ▸ Desktops & large tablets  (viewport ≥ 701 px)
+           • classic 830 + 400 + 400 layout
+           • clear 1 rem gap between the two right-hand squares
+           • histogram & row block centred, capped at 1400 px
+           ────────────────────────────────────────────────────────────*/
+        @media (min-width:701px){
+
+            /* main plot fixed 830 px */
+            #main-holder canvas{
+                width:830px !important;
+                height:auto !important;
+                aspect-ratio:1/1;
+                flex:0 0 auto;
+            }
+
+            /* right-hand charts fixed 400 px, stacked with gap */
+            #trace-holder{
+                display:flex;
+                flex-direction:column;
+                gap:1rem;
+            }
+            #trace-holder canvas{
+                width:400px !important;
+                height:auto !important;
+                aspect-ratio:1/1;
+                flex:0 0 auto;
+            }
+
+            /* centre the whole block on very wide monitors */
+            #row,
+            #hist-holder{
+                max-width:1400px;                     /* 830 + 1 rem + 400 + margins */
                 margin-inline:auto;
             }
-        }
 
-
-        /* -----------------------------------------------------------------
-        Phones / small tablets  0 – 700 px
-        • main plot fills ≈93 vw
-        • both right-hand squares stacked, same width as the main plot
-        • thin histogram strip, also same width
-        -----------------------------------------------------------------*/
-        @media (max-width:700px){
-
-            /* 0 · side-margins for the whole page */
-            body{padding-inline:.8rem;}
-
-            /* 1 · main square plot */
-            #main-holder canvas{
-                width:93vw !important;          /* nearly full screen    */
-                max-width:560px;                /* safety cap            */
-                height:auto !important;
-                aspect-ratio:1/1;
-                margin:0 auto;
-            }
-
-            /* 2 · stack the two square charts under each other */
-            #trace-holder{
-                display:flex;
-                flex-direction:column;          /* vertical stack        */
-                gap:.6rem;                      /* space between them    */
-                align-items:center;             /* keep centred          */
-                overflow-x:hidden;              /* no sideways scroll    */
-            }
-            #trace-holder canvas{
-                width:93vw;                     /* same as main          */
-                max-width:560px;
-                height:auto;
-                aspect-ratio:1/1;
-                margin:0 auto;
-            }
-
-            /* 3 · histogram: shallow bar, same width */
+            /* histogram same width as the row, shallow bar */
             #hist-holder canvas{
-                width:93vw;
-                max-width:560px;
+                width:100%;
+                aspect-ratio:4/1;
                 height:auto;
-                aspect-ratio:4/1;               /* thin strip            */
-                margin:0 auto;
             }
         }
+
 
 
 
