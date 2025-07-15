@@ -79,17 +79,18 @@
                 display:flex;
                 flex-direction:row;      /* side-by-side              */
                 flex-wrap:nowrap;        /* never wrap                */
-                gap:.6rem;               /* space between the squares */
+                gap:.5rem;               /* space between the squares */
                 overflow-x:auto;         /* scroll if still too wide  */
                 align-items:flex-start;
                 padding-inline:.8rem;    /* same side-margins as body */
+                margin-left: 14rem;
             }
 
             /* each square = half of row minus the gap */
             #trace-holder canvas{
                 flex:0 0 auto;
-                width: calc((100% - 2rem) / 2);  /* two equal halves      */
-                max-width:300px;                /* safety cap            */
+                width: 33%;  /* two equal halves      */
+                max-width:200px;                /* safety cap            */
                 height:auto;
                 aspect-ratio:1/1;               /* stay square           */
                 margin-top:0 !important;        /* remove old offset     */
