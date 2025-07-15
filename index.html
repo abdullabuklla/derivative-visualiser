@@ -88,11 +88,12 @@
             /* each square = half of row minus the gap */
             #trace-holder canvas{
                 flex:0 0 auto;
-                width:calc((100% - .6rem)/2);   /* two equal halves      */
-                max-width:340px;                /* safety cap            */
+                width: calc((100% - 2rem) / 2);  /* two equal halves      */
+                max-width:300px;                /* safety cap            */
                 height:auto;
                 aspect-ratio:1/1;               /* stay square           */
                 margin-top:0 !important;        /* remove old offset     */
+                margin-left: 8px !important;
             }
 
             /* histogram stays full width under the row (optional) */
@@ -101,6 +102,7 @@
                 aspect-ratio:4/1;               /* thin bar              */
                 height:auto;
                 margin:0.8rem auto 0;
+                margin-top: -0.4rem;
             }
 
         }
