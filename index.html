@@ -58,11 +58,12 @@
            put the two 400 × 400 canvases side-by-side */
         @media (max-width:700px){
             #main-holder canvas{
-                width: 100% !important;   /* override the inline 830 px */
+                width: 80vw !important;   /* ← make it 80 % of the screen          */
+                max-width: 560px;         /* optional safety cap (0.8 × 700)       */
                 height: auto !important;
-                aspect-ratio: 1 / 1;      /* stay perfectly square      */
-                max-width: 700px;         /* never grow beyond viewport */
-                flex: 0 0 auto;           /* don’t let flexbox stretch  */
+                aspect-ratio: 1 / 1;      /* stay square                           */
+                flex: 0 0 auto;
+                margin: 0 auto;           /* centre it horizontally (optional)     */
             }
             /* holder settings */
             #trace-holder{
