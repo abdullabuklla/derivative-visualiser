@@ -54,85 +54,52 @@
             flex-shrink:0;         /* don’t let it collapse         */
         }
 
-        /* NEW  ─ from 0 px up to 700 px screen width,
-           put the two 400 × 400 canvases side-by-side */
+        /* =========  Base canvas look  (stays for every screen)  ========= */
+        #main-holder canvas,
+        #trace-holder canvas{
+            overflow: visible;
+            border:   1px solid #30363d;
+            border-radius: 10px;
+            box-shadow: 0 0 6px rgba(0,0,0,.6);
+            aspect-ratio: 1 / 1;        /* always square */
+            height: auto;               /* let width drive the size */
+            flex: 0 0 auto;             /* never stretch in flexbox */
+        }
+
+        /* ----------------  PHONE & SMALL TABLET  (≤ 700 px)  ---------------- */
         @media (max-width:700px){
-            #main-holder canvas{
-                width: 93vw !important;   /* ← make it 80 % of the screen          */
-                max-width: 560px;         /* optional safety cap (0.8 × 700)       */
-                height: auto !important;
-                aspect-ratio: 1 / 1;      /* stay square                           */
-                flex: 0 0 auto;
-                margin: 0 auto;           /* centre it horizontally (optional)     */
-            }
-            /* holder settings */
+
+            /* main plot: almost full-width */
+            #main-holder canvas{width: 93vw !important; margin: 0 auto;}
+
+            /* two side panels: sit in a row under the main plot */
             #trace-holder{
-                flex-direction:row;     /* side-by-side              */
-                flex-wrap:nowrap;       /* stay on one line          */
-                overflow-x:auto;        /* scroll if wider           */
-                align-items:flex-start; /* top-align the canvases    */
+                display:flex; flex-direction:row; flex-wrap:nowrap;
+                overflow-x:auto; align-items:flex-start;
+                gap:.6rem; padding-inline:.8rem;
             }
+            #trace-holder canvas{width:48vw; margin-top:0 !important;}
 
-            /* canvas override */
-            #trace-holder canvas{
-                margin-top:0 !important;   /* remove the 0.6 rem offset */
-            }
+            /* histogram as a thin bar */
+            #hist-holder canvas{width:100%; aspect-ratio:3/1;}
 
-            body{
-                padding-left:  0.8rem;   /* adjust value to taste */
-                padding-right: 0.8rem;
-            }
+            /* overall side-margins */
+            body{padding-inline:.8rem;}
         }
 
-        #main-holder canvas{
-            overflow:visible;   /* make sure nothing is clipped  */
-            /*border:2px solid #9a3838;*/
-            border-radius:10px;
-        }
+        /* ----------------  DESKTOP & LARGE TABLET  (≥ 701 px)  ---------------- */
+        @media (min-width:701px){
 
-        /* ==========================================================
-        Responsive sizes below 680 px
-        ========================================================== */
-        @media (max-width: 680px){
+            /* classic fixed sizes */
+            #main-holder canvas {width:830px !important;}
+            #trace-holder canvas{width:400px !important;}
 
-            /* main square fills the line, stays square */
-            #main-holder canvas{
-                width: 100%;          /* take full column width      */
-                max-width: 680px;     /* never larger than viewport  */
-                height: auto;
-                aspect-ratio: 1 / 1;  /* keep it perfectly square    */
-            }
-
-            /* slope-trace & compass: half-width squares, side-by-side */
-            #trace-holder{
-                flex-direction: row;      /* row on small screens          */
-                flex-wrap: nowrap;
-                overflow-x: auto;         /* scroll if still too wide      */
-            }
-            #trace-holder canvas{
-                width: 48vw;              /* ~half the viewport            */
-                max-width: 340px;         /* but never exceed desktop size */
-                height: auto;
-                aspect-ratio: 1 / 1;
-                flex: 0 0 auto;           /* prevent stretching            */
-            }
-
-            /* histogram: thin bar, 3-to-1 ratio */
-            #hist-holder canvas{
-                width: 109%;
-                height: auto;
-                aspect-ratio: 3 / 1;      /* e.g. 330 px wide → 110 px tall */
-            }
-        }
-
-        /* centre the whole two-column row and cap its spread */
-        @media (min-width:1600px){
+            /* keep the two-column block centred on very wide screens */
             #row{
-                max-width: 1400px;      /* 830 + 1rem gap + 400 + margins */
-                margin-inline:auto;     /* centre in the viewport          */
+                max-width:1400px;     /* 830 + 1 rem gap + 400 + margins */
+                margin-inline:auto;
             }
         }
-
 
 
     </style>
