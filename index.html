@@ -69,7 +69,7 @@
 
             /* main plot */
             #main-holder canvas{
-                width: 94vw !important;                /* fill available line */
+                width: 80vw !important;                /* fill available line */
                 margin-inline:auto;
                 height:auto !important;
                 aspect-ratio:1/1;
@@ -90,20 +90,24 @@
             /* each square = half of row minus the gap */
             #trace-holder canvas{
                 flex:0 0 auto;
-                width: 42vw;
+                width: 38vw;
                 height:auto;
                 aspect-ratio:1/1;               /* stay square           */
                 margin-top:0 !important;        /* remove old offset     */
-                margin-left: 8px !important;
+                margin-left: 2px !important;
+            }
+
+            #hist-holder{
+                margin-top: -15px;
             }
 
             /* histogram stays full width under the row (optional) */
             #hist-holder canvas{
-                width: 94vw;
+                width: 80vw;
                 aspect-ratio:4/1;               /* thin bar              */
                 height:auto;
                 margin:0.8rem auto 0;
-                margin-top: -2.4rem;
+    
             }
 
         }
