@@ -59,26 +59,24 @@
         /* ── small-screen layout for the two 400 × 400 canvases ───────── */
         @media (max-width:700px){
 
-            /* holder settings */
+            /* leave the flex settings exactly as they are … */
             #trace-holder{
-                flex-direction: row;       /* side-by-side */
-                flex-wrap:     nowrap;
-                overflow-x:    auto;       /* scroll if wider than viewport */
-                align-items:   flex-start; /* align their top edges */
+                flex-direction: row;
+                flex-wrap:      nowrap;
+                overflow-x:     auto;
+                align-items:    flex-start;
 
-                padding-inline: 0.5rem;    /* ←   margin on left & right */
-                gap:           0.6rem;     /* space between the two canvases */
+                /* … then add only these two lines 👇 */
+                padding-left:  0.5rem;   /* room on the left  */
+                padding-right: 0.5rem;   /* room on the right */
             }
 
-            /* each canvas stays square and gets a tiny buffer */
+            /* give each canvas a sliver of space from its neighbour / edges */
             #trace-holder canvas{
-                flex: 0 0 auto;            /* don’t stretch */
-                margin-inline: 0.1rem;     /* small gap between canvas and padding */
-                width: 48vw;               /* roughly half the screen width */
-                height: auto;
-                aspect-ratio: 1 / 1;       /* keep square */
+                margin-inline: 0.25rem;  /* 0.25 rem on both L & R */
             }
         }
+
 
 
         #main-holder canvas{
