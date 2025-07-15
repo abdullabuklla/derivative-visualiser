@@ -86,72 +86,52 @@
         }
 
 
-        /* NEW  ─ from 0 px up to 700 px screen width,
-           put the two 400 × 400 canvases side-by-side */
+        /* -----------------------------------------------------------------
+        Phones / small tablets  0 – 700 px
+        • main plot fills ≈93 vw
+        • both right-hand squares stacked, same width as the main plot
+        • thin histogram strip, also same width
+        -----------------------------------------------------------------*/
         @media (max-width:700px){
+
+            /* 0 · side-margins for the whole page */
+            body{padding-inline:.8rem;}
+
+            /* 1 · main square plot */
             #main-holder canvas{
-                width: 93vw !important;   /* ← make it 80 % of the screen          */
-                max-width: 560px;         /* optional safety cap (0.8 × 700)       */
-                height: auto !important;
-                aspect-ratio: 1 / 1;      /* stay square                           */
-                flex: 0 0 auto;
-                margin: 0 auto;           /* centre it horizontally (optional)     */
+                width:93vw !important;          /* nearly full screen    */
+                max-width:560px;                /* safety cap            */
+                height:auto !important;
+                aspect-ratio:1/1;
+                margin:0 auto;
             }
-            /* holder settings */
+
+            /* 2 · stack the two square charts under each other */
             #trace-holder{
-                flex-direction:row;     /* side-by-side              */
-                flex-wrap:nowrap;       /* stay on one line          */
-                overflow-x:auto;        /* scroll if wider           */
-                align-items:flex-start; /* top-align the canvases    */
-                gap:.6rem;           /* keep smaller phone gap */
-            }
-
-            /* canvas override */
-            #trace-holder canvas{
-                margin-top:0 !important;   /* remove the 0.6 rem offset */
-            }
-        }
-
-        #main-holder canvas{
-            overflow:visible;   /* make sure nothing is clipped  */
-            /*border:2px solid #9a3838;*/
-            border-radius:10px;
-        }
-
-        /* ==========================================================
-        Responsive sizes below 680 px
-        ========================================================== */
-        @media (max-width: 680px){
-
-            /* main square fills the line, stays square */
-            #main-holder canvas{
-                width: 100%;          /* take full column width      */
-                max-width: 680px;     /* never larger than viewport  */
-                height: auto;
-                aspect-ratio: 1 / 1;  /* keep it perfectly square    */
-            }
-
-            /* slope-trace & compass: half-width squares, side-by-side */
-            #trace-holder{
-                flex-direction: row;      /* row on small screens          */
-                flex-wrap: nowrap;
-                overflow-x: auto;         /* scroll if still too wide      */
+                display:flex;
+                flex-direction:column;          /* vertical stack        */
+                gap:.6rem;                      /* space between them    */
+                align-items:center;             /* keep centred          */
+                overflow-x:hidden;              /* no sideways scroll    */
             }
             #trace-holder canvas{
-                width: 48vw;              /* ~half the viewport            */
-                max-width: 340px;         /* but never exceed desktop size */
-                height: auto;
-                aspect-ratio: 1 / 1;
-                flex: 0 0 auto;           /* prevent stretching            */
+                width:93vw;                     /* same as main          */
+                max-width:560px;
+                height:auto;
+                aspect-ratio:1/1;
+                margin:0 auto;
             }
 
-            /* histogram: thin bar, 3-to-1 ratio */
+            /* 3 · histogram: shallow bar, same width */
             #hist-holder canvas{
-                width: 109%;
-                height: auto;
-                aspect-ratio: 3 / 1;      /* e.g. 330 px wide → 110 px tall */
+                width:93vw;
+                max-width:560px;
+                height:auto;
+                aspect-ratio:4/1;               /* thin strip            */
+                margin:0 auto;
             }
         }
+
 
 
 
