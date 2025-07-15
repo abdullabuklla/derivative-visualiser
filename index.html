@@ -56,28 +56,30 @@
 
         /* NEW  ─ from 0 px up to 700 px screen width,
            put the two 400 × 400 canvases side-by-side */
+        /* ── small-screen layout for the two 400 × 400 canvases ───────── */
         @media (max-width:700px){
-            #main-holder canvas{
-                width: 93vw !important;   /* ← make it 80 % of the screen          */
-                max-width: 560px;         /* optional safety cap (0.8 × 700)       */
-                height: auto !important;
-                aspect-ratio: 1 / 1;      /* stay square                           */
-                flex: 0 0 auto;
-                margin: 0 auto;           /* centre it horizontally (optional)     */
-            }
+
             /* holder settings */
             #trace-holder{
-                flex-direction:row;     /* side-by-side              */
-                flex-wrap:nowrap;       /* stay on one line          */
-                overflow-x:auto;        /* scroll if wider           */
-                align-items:flex-start; /* top-align the canvases    */
+                flex-direction: row;       /* side-by-side */
+                flex-wrap:     nowrap;
+                overflow-x:    auto;       /* scroll if wider than viewport */
+                align-items:   flex-start; /* align their top edges */
+
+                padding-inline: 0.5rem;    /* ←   margin on left & right */
+                gap:           0.6rem;     /* space between the two canvases */
             }
 
-            /* canvas override */
+            /* each canvas stays square and gets a tiny buffer */
             #trace-holder canvas{
-                margin-top:0 !important;   /* remove the 0.6 rem offset */
+                flex: 0 0 auto;            /* don’t stretch */
+                margin-inline: 0.1rem;     /* small gap between canvas and padding */
+                width: 48vw;               /* roughly half the screen width */
+                height: auto;
+                aspect-ratio: 1 / 1;       /* keep square */
             }
         }
+
 
         #main-holder canvas{
             overflow:visible;   /* make sure nothing is clipped  */
