@@ -50,7 +50,7 @@
         #trace-holder{
             display:flex;          /* turn it into a flex box       */
             flex-direction:column; /*  ←  stack top-to-bottom       */
-            gap:1.0rem;             /* space between the two panels  */
+            gap:1.6rem;             /* space between the two panels  */
             flex-shrink:0;         /* don’t let it collapse         */
 
         }
@@ -86,7 +86,7 @@
             #trace-holder canvas{
                 flex:0 0 auto;
                 width:calc((100% - 0.6rem)/2);        /* half of line minus the gap */
-                max-width:340px;                      /* cap so they never balloon  */
+                max-width:275px;                      /* cap so they never balloon  */
                 aspect-ratio:1/1;
                 height:auto;
                 margin-top:0 !important;
@@ -95,7 +95,7 @@
             /* histogram: centred thin bar */
             #hist-holder{
                 max-width:100%;
-                margin:0.5rem auto 0;
+                margin:-1.0rem auto 0;
             }
             #hist-holder canvas{
                 width:100%;
