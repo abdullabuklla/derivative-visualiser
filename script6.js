@@ -49,6 +49,12 @@ function refresh () {
     noLoop();
     rescale();                          // recompute sx,sy and off
     redraw();                           // show the updated view
+
+    /* ── histogram camera reset whenever the function changes ── */
+    const histMaxIn = document.getElementById('histMax');   // ← add this
+    let   histSpan  =  Math.max(1, +histMaxIn.value || 1);
+    let   histCenter = 0;
+
 }
 
 
@@ -58,7 +64,7 @@ const fnIn=$('fnInput'), x0In=$('x0Input'),
     spdIn=$('speedInput'), maxIn=$('maxIt'),
     startBtn=$('startBtn'), pauseBtn=$('pauseBtn'), resetBtn=$('resetBtn'),
     list=$('exampleList'), gapIn = $('gapInput'),
-    mainHold=$('main-holder'), traceHold=$('trace-holder'), histHold=$('hist-holder');
+    mainHold=$('main-holder'), traceHold=$('trace-holder'), histHold=$('hist-holder'), histMaxIn = $('histMax');
 
 [fnIn,x0In,xminIn,xmaxIn,list, gapIn].forEach(el=>{
     el.addEventListener('input',   refresh);  // fires every keystroke
@@ -936,39 +942,169 @@ function drawCompass () {
 
 
 /* 4 · histogram (unchanged) */
+/* ===================================================================
+ *  drawHist()  –  centred bins, zoom + pan, exact tool-tips
+ * ===================================================================
+ *  STEP  = “nice” 1, 2 or 5 × 10ᵏ
+ *  Interior bin i (i = 0 … nInt-1) has centre
+ *        centre_i = firstCentre + i·STEP
+ *  and represents ( centre_i – STEP/2 , centre_i + STEP/2 ].
+ *  Under- / overflow bins gather everything outside ±M.
+ * -------------------------------------------------------------------*/
 function drawHist () {
+
+    /* ─── 1. One-time event wiring ─────────────────────────────── */
+    if (!drawHist._wired) {
+        const histMaxIn = document.getElementById('histMax');
+        histMaxIn.addEventListener('input', () => {
+            histSpan   = Math.max(1, +histMaxIn.value || 1);  // new ±range
+            histCenter = 0;                                   // recenter
+            drawHist._userZoom = false;                       // allow auto logic again
+            redraw();                                         // instant update
+        });
+        window.histSpan = Math.max(1, +histMaxIn?.value || 1);  // start from input
+
+        window.histCenter = 0;
+        window.histTip    = {on:false,x:0,y:0,txt:'',ttl:0};
+
+        const cvs = histC.canvas;
+        let dragX = null, dragC = 0;
+
+        /* wheel → zoom (about cursor) */
+        cvs.addEventListener('wheel', e=>{
+            const r=cvs.getBoundingClientRect(),
+                f=(e.clientX-r.left)/r.width,
+                xAt=histCenter-histSpan+f*2*histSpan,
+                z=e.deltaY>0?1.1:0.9;
+            histSpan   = Math.max(0.02,Math.min(500,histSpan*z));
+            histCenter = xAt + histSpan*(1-2*f);
+            redraw(); e.preventDefault();
+        },{passive:false});
+
+        /* drag → pan */
+        cvs.addEventListener('mousedown',e=>{dragX=e.clientX; dragC=histCenter;});
+        window.addEventListener('mousemove',e=>{
+            if(dragX===null) return;
+            const w=cvs.getBoundingClientRect().width,
+                dx=(e.clientX-dragX)/w*2*histSpan;
+            histCenter = dragC - dx; redraw();
+        });
+        window.addEventListener('mouseup',()=>dragX=null);
+
+        /* dbl-click → reset */
+        cvs.addEventListener('dblclick',()=>{histSpan=10;histCenter=0;redraw();});
+
+        /* “+” / “–” keys → coarse zoom */
+        window.addEventListener('keydown',e=>{
+            if(e.key==='+'||e.key==='='){histSpan=Math.max(0.02,histSpan*0.8);redraw();}
+            if(e.key==='-'){histSpan=Math.min(500,histSpan/0.8);redraw();}
+        });
+
+        /* Cmd/Ctrl-click → interval tooltip */
+        cvs.addEventListener('click',e=>{
+            if(!(e.metaKey||e.ctrlKey)||!drawHist._ready) return;
+            const r=cvs.getBoundingClientRect(),
+                xPix=e.clientX-r.left,
+                idx = Math.floor(((xPix - 120) + drawHist._barW/2) / drawHist._barW);   // one index per bar
+            if(idx<=0||idx>=drawHist._nBins-1) return;          // ignore under/over
+
+            const centre = drawHist._first + (idx-1)*drawHist._STEP, // idx-1 skips underflow
+                a = +(centre - drawHist._STEP/2).toFixed(drawHist._PREC),
+                b = +(centre + drawHist._STEP/2).toFixed(drawHist._PREC),
+                n = drawHist._binsL[idx] + drawHist._binsR[idx];
+
+            histTip={on:true,x:xPix,y:e.clientY-r.top,
+                txt:`(${a}, ${b}]  →  ${n}`,ttl:140};
+            redraw();
+        });
+
+        drawHist._wired = true;
+    }
+
+    /* ─── 2. Choose a “nice” bin width STEP = 1, 2, 5 × 10ᵏ ───── */
+    const nice = span=>{
+        const raw=span/12,p=10**Math.floor(Math.log10(raw)),m=raw/p;
+        return (m<1.5?1:m<3?2:m<7.5?5:10)*p;
+    };
+    const STEP = nice(histSpan),
+        PREC = Math.max(1, -Math.floor(Math.log10(STEP/2))); // always ≥1 dec
+
+    /* ─── 3. Compute first & last interior centres ─────────────── */
+    const leftEdge  = histCenter - histSpan,
+        firstC    = Math.ceil((leftEdge-STEP/2)/STEP)*STEP,  // leftmost centre
+        rightEdge = histCenter + histSpan,
+        lastC     = Math.floor((rightEdge+STEP/2)/STEP)*STEP,
+        nInt      = Math.round((lastC-firstC)/STEP)+1,
+        nBins     = nInt + 2;                                // + under/over
+
+    const barW = (histC.width-80)/nBins;
+
+    // share with tooltip handler
+    Object.assign(drawHist,{
+        _STEP:STEP,_PREC:PREC,_first:firstC,_nBins:nBins,_barW:barW
+    });
+
+    /* ─── 4. Bin the slope data ───────────────────────────────── */
     histC.background('#161b22');
     const L=slopes.map(s=>s[0]).filter(Number.isFinite),
         R=slopes.map(s=>s[1]).filter(Number.isFinite);
     if(!L.length&&!R.length){
         histC.fill('#e6edf3'); histC.textAlign(histC.CENTER,histC.CENTER);
-        histC.textSize(14); histC.text('press Animate',histC.width/2,histC.height/2); return;
+        histC.textSize(14); histC.text('press Animate',histC.width/2,histC.height/2);
+        drawHist._ready=false; return;
     }
+    drawHist._ready=true;
 
-    const M=Math.max(1,+$('histMax').value||10),
-        STEP=M<10?0.1:1, PREC=STEP<1?1:0,
-        NREG=Math.round((2*M)/STEP)+1, NBINS=NREG+2,
-        binsL=Array(NBINS).fill(0), binsR=Array(NBINS).fill(0);
-    const place=(b,v)=>{
-        if(v<=-M-STEP/2) b[0]++;
-        else if(v>=M+STEP/2) b[NBINS-1]++;
-        else b[1+Math.round((v+M)/STEP)]++;
+    const binsL=Array(nBins).fill(0), binsR=Array(nBins).fill(0);
+
+    const put=(arr,v)=>{
+        const i=Math.floor((v-(firstC-STEP/2))/STEP)+1; // +1 skips underflow slot
+        if(i<0) arr[0]++; else if(i>=nBins-1) arr[nBins-1]++; else arr[i]++;
     };
-    L.forEach(v=>place(binsL,v)); R.forEach(v=>place(binsR,v));
+    L.forEach(v=>put(binsL,v)); R.forEach(v=>put(binsR,v));
 
+    // /* ── auto-expand until no samples land in the overflow bins ── */
+    // if (!drawHist._autoscaling) {       // guard against infinite loops
+    //     drawHist._autoscaling = true;     // (set flag)
+    //
+    //     const tooLow  = binsL[0] + binsR[0],
+    //         tooHigh = binsL[nBins-1] + binsR[nBins-1];
+    //
+    //     if ((tooLow || tooHigh) && histSpan < 10) {
+    //         histSpan *= 2;                  // widen view to ±2, ±4, ±8 …
+    //         if (histSpan > 10) histSpan = 10;
+    //         redraw();                       // re-run with the wider span
+    //         drawHist._autoscaling = false;
+    //         return;                         // stop this draw cycle here
+    //     }
+    //     drawHist._autoscaling = false;    // clear flag
+    // }
+
+
+    drawHist._binsL=binsL; drawHist._binsR=binsR;
+
+    /* ─── 5. Draw bars, axes, labels, tooltip ─────────────────── */
     const maxC=Math.max(...binsL.map((c,i)=>c+binsR[i])),
-        barW=(histC.width-80)/NBINS, y0=histC.height-62, yS=(histC.height-82)/maxC;
-    for(let i=0;i<NBINS;i++){
+        y0   = histC.height-62,
+        yS   = (histC.height-82)/(maxC||1);
+
+    // bars
+    for(let i=0;i<nBins;i++){
         const x=80+i*barW, hL=binsL[i]*yS, hR=binsR[i]*yS;
         histC.fill('#ffa657'); histC.rect(x,y0-hL,barW-1,hL);
         histC.fill('#64dcff'); histC.rect(x,y0-hL-hR,barW-1,hR);
-        histC.noStroke(); histC.fill('#e6edf3'); histC.textSize(10); histC.textAlign(histC.CENTER);
+
+        // label
         let lbl;
-        if(i===0)           lbl=`≤${(-M-STEP/2).toFixed(PREC)}`;
-        else if(i===NBINS-1)lbl=`≥${(M+STEP/2).toFixed(PREC)}`;
-        else                lbl=(-M+(i-1)*STEP).toFixed(PREC).replace(/\.0$/,'');
+        if(i===0)          lbl=`≤${(firstC-STEP).toFixed(PREC)}`;
+        else if(i===nBins-1)lbl=`≥${(firstC+(nInt-1)*STEP+STEP).toFixed(PREC)}`;
+        else                lbl=(firstC+(i-1)*STEP).toFixed(PREC);
+        histC.noStroke(); histC.fill('#e6edf3'); histC.textSize(10);
+        histC.textAlign(histC.CENTER);
         histC.text(lbl,x+barW/2,histC.height-48);
     }
+
+    // y-axis
     histC.stroke('#e6edf3'); histC.line(70,20,70,y0); histC.line(70,y0,histC.width,y0);
     histC.noStroke(); histC.fill('#e6edf3'); histC.textSize(11); histC.textAlign(histC.RIGHT);
     [0,0.25,0.5,0.75,1].forEach(t=>{
@@ -977,12 +1113,40 @@ function drawHist () {
         histC.stroke('#30363d'); histC.line(67,y,70,y); histC.noStroke();
     });
 
-    /* title centred **below** the histogram */
-    histC.fill('#e6edf3');
-    histC.textAlign(histC.CENTER, histC.BOTTOM);
-    histC.textSize(14);
-    histC.text('Slope histogram', histC.width / 2, histC.height - 8);
+    // tooltip
+    if(histTip.on){
+        if(--histTip.ttl<=0) histTip.on=false;
+        else{
+            histC.push(); histC.translate(histTip.x,histTip.y-28);
+            histC.fill(0,200); histC.noStroke(); histC.rect(-90,-18,180,26,4);
+            histC.fill('#e6edf3'); histC.textSize(11);
+            histC.textAlign(histC.CENTER,histC.CENTER);
+            histC.text(histTip.txt,0,-5);
+            histC.pop(); redraw();
+        }
+    }
+
+    // title
+    histC.fill('#e6edf3'); histC.textAlign(histC.CENTER,histC.BOTTOM);
+    histC.textSize(14); histC.text('Slope histogram',histC.width/2,histC.height-8);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ------- buttons & controls --------------------------------------- */
 function start(){
@@ -1062,6 +1226,10 @@ resetBtn.onclick = () => {
     off = { x: 0, y: 0 };
     moved = false;
     auto  = 'none';
+
+    /* ── reset the histogram camera ───────────────────────────── */
+    histSpan   = Math.max(1, +histMaxIn.value || 1);
+    histCenter = 0;    // keep bar 0 in the middle
 
     rescale();               // recompute sx, sy, off
     noLoop();
